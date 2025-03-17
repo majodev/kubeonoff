@@ -1,23 +1,33 @@
-export const request = async ( url, options ) => {
+function getBasePath() {
+	// Get everything after origin but before any additional path segments
+	const pathname = window.location.pathname;
+	// If serving from root, return empty string
+	if (pathname === '/' || !pathname) return '';
+	// Extract base path (first path segment)
+	const match = pathname.match(/^(\/[^/]+)/);
+	return match ? match[1] : '';
+}
 
-	const wholeURL = `${window.location.origin}${window.location.pathname}${url.replace(/^\//,'')}`
+export const request = async (url, options) => {
+	const basePath = getBasePath();
+	const wholeURL = `${window.location.origin}${basePath}${url.replace(/^\//, '')}`;
 
-	const response = await fetch( wholeURL, {
+	const response = await fetch(wholeURL, {
 		credentials: 'include',
 		...options
-	} )
+	});
 
-	if ( !response.ok ) {
-		throw new Error( await response.text() )
+	if (!response.ok) {
+		throw new Error(await response.text());
 	}
 
-	const contentType = response.headers.get( 'content-type' )
-	if ( contentType && contentType.includes( 'application/json' ) ) {
-		return response.json()
+	const contentType = response.headers.get('content-type');
+	if (contentType && contentType.includes('application/json')) {
+		return response.json();
 	}
 
-	return response.text()
-}
+	return response.text();
+};
 
 window.request = request
 

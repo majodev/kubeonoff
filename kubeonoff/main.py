@@ -24,7 +24,7 @@ TOKEN_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/token"
 CAFILE_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
 NAMESPACE = os.environ["POD_NAMESPACE"]
 KUBE_API_URL = "https://kubernetes.default"
-
+BASE_PATH = os.environ.get("KUBEONOFF_BASE_PATH", "/").rstrip("/")
 
 PROXY_AUTH_USER_HEADER = os.environ.get("PROXY_AUTH_USER_HEADER")
 
@@ -486,23 +486,24 @@ def create_web_app():
         connector=conn, headers={"Authorization": f"Bearer {token}"}
     )
 
-    app.router.add_post("/v1/deployments/{name}/off", web_deployment_off)
-    app.router.add_post("/v1/deployments/{name}/on", web_deployment_on)
+    app.router.add_post(f"{BASE_PATH}/v1/deployments/{{name}}/off", web_deployment_off)
+    app.router.add_post(f"{BASE_PATH}/v1/deployments/{{name}}/on", web_deployment_on)
     app.router.add_post(
-        "/v1/deployments/{name}/restart", web_deployment_rolling_restart
+        f"{BASE_PATH}/v1/deployments/{{name}}/restart", web_deployment_rolling_restart
     )
-    app.router.add_get("/v1/pods/{name}/{container}/log", web_pod_log)
-    app.router.add_delete("/v1/pods/all", web_pod_delete_all)
-    app.router.add_delete("/v1/pods/{name}", web_pod_delete)
-    app.router.add_get("/v1/all", web_get_all)
-    app.router.add_get("/v1/kubeonoff/extensions", web_get_extensions)
+    app.router.add_get(f"{BASE_PATH}/v1/pods/{{name}}/{{container}}/log", web_pod_log)
+    app.router.add_delete(f"{BASE_PATH}/v1/pods/all", web_pod_delete_all)
+    app.router.add_delete(f"{BASE_PATH}/v1/pods/{{name}}", web_pod_delete)
+    app.router.add_get(f"{BASE_PATH}/v1/all", web_get_all)
+    app.router.add_get(f"{BASE_PATH}/v1/kubeonoff/extensions", web_get_extensions)
 
     load_extensions(app)
 
     # keep these routes last
-    app.router.add_get("/", serve_index_html)
+    app.router.add_get(f"{BASE_PATH}/", serve_index_html)
+    app.router.add_get(f"{BASE_PATH}", serve_index_html)  # Handle both with and without trailing slash
     app.router.add_static(
-        "/",
+        f"{BASE_PATH}/",
         os.path.dirname(os.path.realpath(__file__))
         + "/../kubeonoff-frontend/build",
         follow_symlinks=True,
