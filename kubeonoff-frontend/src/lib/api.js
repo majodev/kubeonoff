@@ -8,9 +8,14 @@ function getBasePath() {
 	return match ? match[1] : '';
 }
 
+// API paths without base path prefix
+const API_PREFIX = 'v1';
+
 export const request = async (url, options) => {
 	const basePath = getBasePath();
-	const wholeURL = `${window.location.origin}${basePath}${url.replace(/^\//, '')}`;
+	// Ensure URL starts with forward slash and combine with base path
+	const normalizedUrl = url.startsWith('/') ? url : `/${url}`;
+	const wholeURL = `${window.location.origin}${basePath}/${API_PREFIX}${normalizedUrl}`;
 
 	const response = await fetch(wholeURL, {
 		credentials: 'include',
@@ -31,7 +36,8 @@ export const request = async (url, options) => {
 
 window.request = request
 
-export const extensionRequest = ( extension, url, options ) => request( `/v1/kubeonoff/extensions/${extension}${url}`, options )
+export const extensionRequest = (extension, url, options) =>
+	request(`/kubeonoff/extensions/${extension}${url}`, options)
 
 const convenienceMethods = [ 'GET', 'POST', 'DELETE', 'PUT', 'PATCH' ]
 convenienceMethods.forEach( method => request[ method ] = ( url, options ) => request( url, {
@@ -43,18 +49,20 @@ convenienceMethods.forEach( method => extensionRequest[ method ] = ( extension, 
 	...options
 } ) )
 
-export const getAll = () => request.GET( '/v1/all' )
+export const getAll = () => request.GET('/all')
 
-export const on = name => request.POST( `/v1/deployments/${name}/on` )
+export const on = name => request.POST(`/deployments/${name}/on`)
 
-export const off = name => request.POST( `/v1/deployments/${name}/off` )
+export const off = name => request.POST(`/deployments/${name}/off`)
 
-export const restart = name => request.POST( `/v1/deployments/${name}/restart` )
+export const restart = name => request.POST(`/deployments/${name}/restart`)
 
-export const deletePod = name => request.DELETE( `/v1/pods/${name}` )
+export const deletePod = name => request.DELETE(`/pods/${name}`)
 
-export const getPodLog = ( name, container, timestamps = false ) => request.GET( `/v1/pods/${name}/${container}/log${timestamps ? '?timestamps=true' : ''}` )
+export const getPodLog = (name, container, timestamps = false) =>
+	request.GET(`/pods/${name}/${container}/log${timestamps ? '?timestamps=true' : ''}`)
 
-export const getExtensions = () => request.GET( '/v1/kubeonoff/extensions' )
+export const getExtensions = () => request.GET('/kubeonoff/extensions')
 
-export const getExtensionControls = extension => extensionRequest.GET( extension, '/controls' )
+export const getExtensionControls = extension =>
+	extensionRequest.GET(extension, '/controls')

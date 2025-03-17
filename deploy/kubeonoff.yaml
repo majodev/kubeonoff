@@ -95,3 +95,5 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
+        # - name: KUBEONOFF_BASE_PATH
+        #   value: "/kubeonoff"
