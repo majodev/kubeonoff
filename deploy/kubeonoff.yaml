@@ -80,7 +80,7 @@ spec:
       volumes:
       containers:
       - name: kubeonoff
-        image: gambitresearch/kubeonoff:v0.1.2
+        image: ghcr.io/majodev/kubeonoff
         imagePullPolicy: IfNotPresent
         resources:
           limits:
