@@ -1,5 +1,11 @@
 # A simple web UI for managing Kubernetes deployments
 
+> This is a fork of [GambitResearch/kubeonoff](https://github.com/GambitResearch/kubeonoff) for the purpose of:
+> * Running behind a subfolder, ENV `KUBEONOFF_BASE_PATH`
+> * Adding GitHub Actions for publishing to [GitHub Container Registry](https://github.com/majodev/kubeonoff/pkgs/container/kubeonoff), `ghcr.io/majodev/kubeonoff`
+> * Having a multistage `Dockerfile` for smaller image size and
+> * Supporting both AMD64 and ARM64 architectures.
+
 ## Intro
 
 Kubeonoff is a small web UI that allows to quickly stop/start/restart pods.
